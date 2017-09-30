@@ -2,6 +2,7 @@ package com.komine.utils.log
 
 import com.komine.utils.TextFormat
 import org.fusesource.jansi.AnsiConsole
+import java.nio.channels.ClosedByInterruptException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -66,6 +67,7 @@ object MainLogger : Thread(), Logger {
 				}
 				Thread.sleep(5)
 			} catch (_: InterruptedException) {
+			} catch (_: ClosedByInterruptException) {
 			}
 		}
 		val messages = mutableListOf<LogEntry>()
