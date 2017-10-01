@@ -1,6 +1,7 @@
 package com.komine.utils.log
 
 import com.komine.utils.TextFormat
+import com.komine.utils.exceptionMessage
 import org.fusesource.jansi.AnsiConsole
 import java.nio.channels.ClosedByInterruptException
 import java.time.LocalDateTime
@@ -45,6 +46,10 @@ object MainLogger : Thread(), Logger {
 		})
 
 		logQueue.add(entry)
+		throwable?.let {
+			logQueue.add(LogEntry(exceptionMessage(it)))
+		}
+
 		synchronized(lock) {
 			lock.notify()
 		}
