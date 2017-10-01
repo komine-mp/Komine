@@ -23,7 +23,7 @@ abstract class ConfigSection(init: Map<String, Any?> = emptyMap()) {
 		(map[key] ?: run {
 			val section = findSection(sectionOfKey(key)) ?: return null
 			val subKey = endOfKey(key)
-			return section.map[subKey] as T?
+			return@run section.map[subKey] as T?
 		} ?: default) as T
 
 	/**

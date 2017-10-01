@@ -2,16 +2,10 @@ package com.komine.utils.config
 
 import com.github.salomonbrys.kotson.fromJson
 import com.github.salomonbrys.kotson.registerTypeAdapter
-import com.github.salomonbrys.kotson.toMap
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.komine.utils.log.MainLogger
-import com.komine.utils.log.debug
-import com.komine.utils.log.warning
+import com.google.gson.JsonPrimitive
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.representer.Represent
 import org.yaml.snakeyaml.representer.Representer
 import java.io.Reader
@@ -33,6 +27,10 @@ enum class ConfigType(vararg extensions: String) {
 	PROPERTIES("properties", "cnf", "conf", "config") {
 		val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")!!
 		val propertyPattern = "([a-zA-Z0-9-_.]*)=([^\r\n]*)".toRegex()
+		val gson = with(GsonBuilder()) {
+			disableHtmlEscaping()
+			create()
+		}!!
 
 		override fun save(config: ConfigSection, writer: Writer, file: Path) {
 			writer.appendln("#Properties Config File")
@@ -41,7 +39,7 @@ enum class ConfigType(vararg extensions: String) {
 				writer.append(key, "=")
 				when (value) {
 					is Boolean -> writer.appendln(if (value) "on" else "off")
-					else -> writer.appendln(value.toString())
+					else -> writer.appendln(gson.toJson(value))
 				}
 			}
 		}
@@ -54,7 +52,26 @@ enum class ConfigType(vararg extensions: String) {
 						"on", "true", "yes" -> true
 						"off", "false", "no" -> false
 						"null" -> null
-						else -> value
+						else -> {
+							try {
+								val it = gson.fromJson<JsonPrimitive>(value)
+								when {
+									it.isNumber -> it.asNumber.let { number ->
+										@Suppress("IMPLICIT_CAST_TO_ANY")
+										if (number.toLong() in Int.MIN_VALUE..Int.MAX_VALUE) {
+											number.toInt()
+										} else {
+											number.toLong()
+										}
+									}
+									it.isString -> it.asString
+									else -> null
+								}
+							} catch (e: Throwable) {
+								e.printStackTrace()
+								value
+							}
+						}
 					}
 					set(key, computedValue)
 				}
