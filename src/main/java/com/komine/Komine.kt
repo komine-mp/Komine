@@ -21,7 +21,14 @@ fun main(args: Array<String>) {
 	MainLogger.addAttachment(FileLoggerAttachment(root.resolve("server.log")))
 
 	// TODO: Ability to specify these paths
-	Server(MainLogger, root, root.resolve("plugins"))
+	Server(MainLogger, root, root.resolve("plugins")).run {
+		try {
+			start()
+			tickProcessor()
+		} finally {
+			stop()
+		}
+	}
 
 	MainLogger.info { "Stopping other threads..." }
 
