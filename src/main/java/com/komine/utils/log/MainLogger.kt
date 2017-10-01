@@ -56,6 +56,7 @@ object MainLogger : Thread(), Logger {
 	}
 
 	override fun run() {
+		currentThread().name = "MainLogger"
 		AnsiConsole.systemInstall()
 
 		while (!shutdown) {
@@ -65,7 +66,7 @@ object MainLogger : Thread(), Logger {
 	}
 
 	private fun flush() {
-		if (logQueue.isEmpty()) {
+		if (!shutdown && logQueue.isEmpty()) {
 			try {
 				synchronized(lock) {
 					lock.wait(25000)
@@ -79,6 +80,8 @@ object MainLogger : Thread(), Logger {
 		while (logQueue.isNotEmpty()) {
 			messages.add(logQueue.poll())
 		}
-		attachments.forEach { it.send(messages) }
+		if (messages.isNotEmpty()) {
+			attachments.forEach { it.send(messages) }
+		}
 	}
 }
