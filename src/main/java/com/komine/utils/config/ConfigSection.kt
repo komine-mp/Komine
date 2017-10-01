@@ -16,15 +16,21 @@ abstract class ConfigSection(init: Map<String, Any?> = emptyMap()) {
 
 	fun toMap() = map.toMap()
 
+	/**
+	 * @return value of key or default
+	 */
 	operator fun <T : Any?> get(key: String, default: T? = null): T? =
 		(map[key] ?: run {
-			val section = section(sectionOfKey(key)) ?: return null
+			val section = findSection(sectionOfKey(key)) ?: return null
 			val subKey = endOfKey(key)
 			return section.map[subKey] as T?
 		} ?: default) as T
 
+	/**
+	 * Set value of key to the value
+	 */
 	operator fun <T : Any?> set(key: String, value: T): Any? {
-		val section = ensureSection(sectionOfKey(key))
+		val section = section(sectionOfKey(key))
 		val subKey = endOfKey(key)
 		return section.map.put(subKey, value)
 	}
@@ -36,34 +42,54 @@ abstract class ConfigSection(init: Map<String, Any?> = emptyMap()) {
 	 * @return value by key
 	 */
 	fun <T : Any?> prop(key: String, default: () -> T): T {
-		val section = ensureSection(sectionOfKey(key))
+		val section = section(sectionOfKey(key))
 		val subKey = endOfKey(key)
 		return section.map.getOrPut(subKey, default) as T
 	}
 
-	protected fun sectionOfKey(key: String) = key.substringBeforeLast('.', "")
-	protected fun endOfKey(key: String) = key.substringAfterLast('.')
-	protected fun section(section: String): ConfigSection? {
-		if (section.isEmpty()) {
+	/**
+	 * Searches or depth sections path
+	 * @return section on given path or null if not exists
+	 */
+	fun findSection(path: String): ConfigSection? {
+		if (path.isEmpty()) {
 			return this
 		}
 		var currentSection = this
-		for (key in section.split('.')) {
+		for (key in path.split('.')) {
 			val next = currentSection.map[key] as? ConfigSection ?: return null
 			currentSection = next
 		}
 		return currentSection
 	}
-	protected fun ensureSection(section: String): ConfigSection {
-		if (section.isEmpty()) {
+
+	/**
+	 * Searches or creates depth sections path
+	 * @return section on given path
+	 */
+	fun section(path: String): ConfigSection {
+		if (path.isEmpty()) {
 			return this
 		}
-		var currentSection = this
-		for (key in section.split('.')) {
-			currentSection = currentSection.map.getOrPut(key, { MapConfigSection() }) as MapConfigSection
+		var section = this
+		for (key in path.split('.')) {
+			section = section.map.getOrPut(key, { MapConfigSection() }) as MapConfigSection
 		}
-		return currentSection
+		return section
 	}
+
+	/**
+	 * Searches or creates depth sections path and executes lambda on it
+	 * @see section
+	 */
+	inline fun section(key: String, lambda: ConfigSection.() -> Unit): ConfigSection {
+		val section = section(key)
+		section.lambda()
+		return section
+	}
+
+	protected fun sectionOfKey(key: String) = key.substringBeforeLast('.', "")
+	protected fun endOfKey(key: String) = key.substringAfterLast('.')
 
 	fun clone() = MapConfigSection(map)
 }

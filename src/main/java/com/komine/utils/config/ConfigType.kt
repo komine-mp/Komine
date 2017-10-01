@@ -88,6 +88,7 @@ enum class ConfigType(vararg extensions: String) {
 		}, DumperOptions().apply {
 			defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
 			indent = 1
+			indicatorIndent = 0
 		})
 
 		override fun save(config: ConfigSection, writer: Writer, file: Path) = yaml.dump(config, writer)

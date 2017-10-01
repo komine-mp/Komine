@@ -7,9 +7,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
-	private lateinit var config: Config
-	lateinit var test: String
-		private set
+	lateinit var properties: Config
+	lateinit var motd: String
+	lateinit var serverIp: String
+	var serverPort: Int = 19132
 
 	init {
 		Files.createDirectories(dataPath)
@@ -20,7 +21,25 @@ class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
 			if (!Files.exists(it)) {
 				logger.info { "Creating komine.yml..." }
 			}
-			config = Config(it)
+			// TODO: Create and load komine.yml
 		}
+
+		logger.info { "Loading server.properties..." }
+		dataPath.resolve("server.properties").let {
+			if (!Files.exists(it)) {
+				logger.info { "Creating server.properties..." }
+			}
+			properties = Config(it).apply {
+				motd = prop("motd", { "${Komine.NAME} Server" })
+				serverIp = prop("server-ip", { "0.0.0.0" })
+				serverPort = prop("server-port", { 19132 })
+
+				save()
+			}
+		}
+	}
+
+	fun start() {
+
 	}
 }

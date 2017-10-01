@@ -8,6 +8,7 @@ import org.fusesource.jansi.Ansi
 import java.nio.file.Paths
 
 object Komine {
+	val NAME = "Komine"
 	val VERSION = "0.0.1dev"
 	val API_VERSION = "0.0.1"
 }

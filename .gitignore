@@ -1,4 +1,5 @@
 server.log
+server.properties
 komine.yml
 target/
 
