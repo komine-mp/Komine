@@ -1,6 +1,12 @@
 package com.komine.timings
 
+import java.io.PrintWriter
+
 class TimingsHandler(val timings: Timings, val name: String, val parent: TimingsHandler? = null) {
+	init {
+		timings.addHandler(this)
+	}
+
 	private var count = 0
 	private var curCount = 0
 	private var start = 0L
@@ -50,5 +56,22 @@ class TimingsHandler(val timings: Timings, val name: String, val parent: Timings
 		} finally {
 			stop()
 		}
+	}
+
+	fun print(writer: PrintWriter) = with(writer) {
+		if (count == 0) {
+			return
+		}
+		print("    ")
+		print(name)
+		print(" Time: ")
+		print(totalTime)
+		print(" Count: ")
+		print(count)
+		print(" Avg: ")
+		print(Math.round(totalTime / count.toDouble()))
+		print(" Violations: ")
+		print(violations)
+		println()
 	}
 }

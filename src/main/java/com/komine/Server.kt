@@ -45,7 +45,7 @@ class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
 				logger.info { "Creating server.properties..." }
 			}
 			properties = Config(it).apply {
-				motd = prop("motd", { "${Komine.NAME} Server" })
+				motd = prop("motd", { "${Komine.Name} Server" })
 				serverIp = prop("server-ip", { "0.0.0.0" })
 				serverPort = prop("server-port", { 19132 })
 
@@ -67,7 +67,7 @@ class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
 		while (isRunning) {
 			tick()
 
-			val toSleep = System.currentTimeMillis() - nextTick - 1
+			val toSleep = nextTick - System.currentTimeMillis() - 1
 			if (toSleep >= 0) {
 				try {
 					Thread.sleep(toSleep, 999999)
@@ -99,6 +99,7 @@ class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
 			// TODO: Other stuff
 		}
 
+		timings.tick(false) // TODO: Check TPS
 		// TODO: Ticking analysis
 
 		if (nextTick - time < -1000) {

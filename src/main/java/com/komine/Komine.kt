@@ -8,9 +8,14 @@ import org.fusesource.jansi.Ansi
 import java.nio.file.Paths
 
 object Komine {
-	val NAME = "Komine"
-	val VERSION = "0.0.1dev"
-	val API_VERSION = "0.0.1"
+	val Name = "Komine"
+	val Version = "0.0.1dev"
+	val ApiVersion = "0.0.1"
+
+	/**
+	 * NOTE: Will be moved away
+	 */
+	val MinecraftVersion = "v1.2.0.81"
 }
 
 fun main(args: Array<String>) {

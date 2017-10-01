@@ -1,7 +1,14 @@
 package com.komine.timings
 
+import com.komine.Komine
+import java.io.PrintWriter
+
 class Timings {
 	var enabled = true
+	/**
+	 * NOTE: Have to be on the top of all TimingsHandler due to initialization order
+	 */
+	private val handlers = mutableSetOf<TimingsHandler>()
 
 	val fullTickTimer = TimingsHandler(this, "Full Server Tick")
 	val serverTickTimer = TimingsHandler(this, "** Full Server Tick", fullTickTimer)
@@ -39,4 +46,24 @@ class Timings {
 	val schedulerAsyncTimer = TimingsHandler(this, "** Scheduler - Async Tasks")
 	val playerCommandTimer = TimingsHandler(this, "** playerCommand")
 	val craftingDataCacheRebuildTimer = TimingsHandler(this, "** craftingDataCacheRebuild")
+
+	fun addHandler(handler: TimingsHandler) = when {
+		handler.timings != this -> throw IllegalStateException("Cannot add handler of other timings")
+		!handlers.add(handler) -> throw IllegalStateException("Handler is already added")
+		else -> Unit
+	}
+
+	fun tick(measure: Boolean) = handlers.forEach { it.tick(measure) }
+
+	fun print(writer: PrintWriter) = with(writer) {
+		println("Minecraft")
+		handlers.forEach { it.print(writer) }
+		println("# Version ${Komine.MinecraftVersion}")
+		println("# ${Komine.Name} ${Komine.Version}")
+
+		var entities = 0
+		var livingEntities = 0
+		println("# Entities $entities")
+		println("# LivingEntities $livingEntities")
+	}
 }
