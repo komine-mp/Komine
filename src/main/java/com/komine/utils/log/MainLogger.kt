@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
 
-object MainLogger : Thread(), Logger {
+object MainLogger : Thread("MainLogger"), Logger {
 	private val DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
 	private val logQueue = ConcurrentLinkedQueue<LogEntry>()
@@ -23,7 +23,6 @@ object MainLogger : Thread(), Logger {
 
 	init {
 		start()
-		addAttachment(StdoutLoggerAttachment)
 	}
 
 	fun addAttachment(attachment: LoggerAttachment) = attachments.add(attachment)
@@ -56,7 +55,6 @@ object MainLogger : Thread(), Logger {
 	}
 
 	override fun run() {
-		currentThread().name = "MainLogger"
 		AnsiConsole.systemInstall()
 
 		while (!shutdown) {

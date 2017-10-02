@@ -1,5 +1,6 @@
 package com.komine
 
+import com.komine.command.StashingCommandReader
 import com.komine.utils.log.FileLoggerAttachment
 import com.komine.utils.log.MainLogger
 import com.komine.utils.log.debug
@@ -23,10 +24,12 @@ fun main(args: Array<String>) {
 
 	Thread.currentThread().name = "Main"
 
+	val commandReader = StashingCommandReader()
+	MainLogger.addAttachment(commandReader)
 	MainLogger.addAttachment(FileLoggerAttachment(root.resolve("server.log")))
 
 	// TODO: Ability to specify these paths
-	Server(MainLogger, root, root.resolve("plugins")).run {
+	Server(MainLogger, commandReader, root, root.resolve("plugins")).run {
 		try {
 			start()
 			tickProcessor()

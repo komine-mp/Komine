@@ -1,16 +1,16 @@
 package com.komine
 
+import com.komine.command.CommandReader
 import com.komine.scheduler.Scheduler
 import com.komine.timings.Timings
 import com.komine.utils.config.Config
 import com.komine.utils.log.Logger
-import com.komine.utils.log.MainLogger
 import com.komine.utils.log.info
 import com.komine.utils.log.warning
 import java.nio.file.Files
 import java.nio.file.Path
 
-class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
+class Server(val logger: Logger, val commandReader: CommandReader, val dataPath: Path, val pluginPath: Path) {
 	var isRunning = false
 		private set
 	var tickCounter = 0
@@ -72,7 +72,7 @@ class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
 				try {
 					Thread.sleep(toSleep, 999999)
 				} catch (e: InterruptedException) {
-					MainLogger.warning(e) { "Tick processor sleeping interrupted" }
+					logger.warning(e) { "Tick processor sleeping interrupted" }
 				}
 			}
 		}
@@ -95,6 +95,11 @@ class Server(val logger: Logger, val dataPath: Path, val pluginPath: Path) {
 			}
 
 			timings.schedulerTimer.use { scheduler.tick(tickCounter) }
+
+			while (true) {
+				val line = commandReader.readLine() ?: break
+				// TODO: Handle command
+			}
 
 			// TODO: Other stuff
 		}
