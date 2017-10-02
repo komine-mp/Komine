@@ -2,7 +2,6 @@ package com.komine.scheduler
 
 import com.komine.utils.log.MainLogger
 import com.komine.utils.log.critical
-import com.komine.utils.log.error
 
 class TaskHandler(val task: Task, val taskId: Int, val delay: Int = -1, val period: Int = -1) {
 	var nextRun: Int = -1
